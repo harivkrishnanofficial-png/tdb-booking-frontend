@@ -187,3 +187,45 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+.share {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.whatsapp,
+.copy {
+  display: inline-flex;
+  flex: 1 1 10rem;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--control-height);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* WhatsApp's dark green, so devotees recognise the button; 5.6:1 with white text. */
+.whatsapp {
+  color: #fff;
+  background: #0f7a3d;
+}
+
+.copy {
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-surface);
+}
+
+.copyStatus {
+  flex: 1 1 100%;
+  margin: 0;
+  color: var(--color-success);
+  font-size: var(--font-size-sm);
+}
+

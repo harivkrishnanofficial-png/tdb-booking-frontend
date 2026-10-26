@@ -90,6 +90,21 @@ describe('BookingView filters in the URL', () => {
     expect(await screen.findByRole('radio', { name: /6:30 pm/ })).toBeInTheDocument()
   })
 
+  it('shares the current temple and date on WhatsApp or as a copied link', async () => {
+    const { user } = renderWithProviders(<BookingView />)
+    await user.selectOptions(await screen.findByLabelText('Temple'), 'sabarimala')
+    await user.click(screen.getByRole('radio', { name: 'Sat, 31 Oct' }))
+    const link = 'http://localhost:3000/?temple=sabarimala&date=2026-10-31'
+
+    const whatsapp = screen.getByRole('link', { name: 'Share on WhatsApp' })
+    const message = new URL(whatsapp.getAttribute('href') ?? '').searchParams.get('text')
+    expect(message).toBe(`Sabarimala Sree Dharma Sastha Temple darshan slots for Saturday 31 October: ${link}`)
+
+    await user.click(screen.getByRole('button', { name: 'Copy link' }))
+    expect(await navigator.clipboard.readText()).toBe(link)
+    expect(screen.getByText('Link copied. Paste it in any chat.')).toBeInTheDocument()
+  })
+
   it('does not let a slow response for an earlier temple overwrite the current one', async () => {
     let resolveSlowRequest: (slots: Slot[]) => void = () => {}
     vi.spyOn(darshanApi, 'getSlots').mockImplementation((templeId) =>

@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react'
 import { StatusMessage } from '../../components/StatusMessage/StatusMessage.view'
 import { useI18n } from '../../common/localization/I18nContext'
 import type { MessageKey } from '../../common/localization/En'
@@ -5,7 +6,11 @@ import styles from './Booking.module.css'
 import type { BookingViewModel, SlotOption, SlotUnavailableReason } from './Booking.types'
 import { useBookingViewModel } from './Booking.viewModel'
 import { BookingFormView } from './BookingForm.view'
-import { ReceiptView } from './Receipt.view'
+
+// The QR code library is only needed after a booking succeeds, so it loads then.
+const ReceiptView = lazy(() =>
+  import('./Receipt.view').then((module) => ({ default: module.ReceiptView })),
+)
 
 const UNAVAILABLE_LABELS: Record<Exclude<SlotUnavailableReason, null>, MessageKey> = {
   full: 'slots.full',
@@ -72,6 +77,37 @@ function DatePicker({ viewModel }: { viewModel: BookingViewModel }) {
         ))}
       </div>
     </fieldset>
+  )
+}
+
+const WHATSAPP_SHARE_URL = 'https://wa.me/'
+
+/** WhatsApp and copy-link sharing for the current temple and day. */
+function ShareLinks({ viewModel }: { viewModel: BookingViewModel }) {
+  const { t, localize, formatDate } = useI18n()
+  const { shareUrl, selectedTemple, date, copyStatus, copyShareLink } = viewModel
+  if (!shareUrl || !selectedTemple) return null
+
+  const message = t('share.message', {
+    temple: localize(selectedTemple.name),
+    date: formatDate(date, { weekday: 'long', day: 'numeric', month: 'long' }),
+    url: shareUrl,
+  })
+  const whatsappHref = `${WHATSAPP_SHARE_URL}?text=${encodeURIComponent(message)}`
+
+  return (
+    <div className={styles.share} role="group" aria-label={t('share.label')}>
+      <a className={styles.whatsapp} href={whatsappHref} target="_blank" rel="noopener noreferrer">
+        {t('share.whatsapp')}
+      </a>
+      <button type="button" className={styles.copy} onClick={copyShareLink}>
+        {t('share.copy')}
+      </button>
+      <p className={styles.copyStatus} role="status">
+        {copyStatus === 'copied' && t('share.copied')}
+        {copyStatus === 'failed' && t('share.copyFailed')}
+      </p>
+    </div>
   )
 }
 
@@ -151,7 +187,11 @@ function BookingPanel({ viewModel }: { viewModel: BookingViewModel }) {
   const { confirmedBooking, selectedSlot, selectedTemple, handleBooked, startNewBooking } = viewModel
 
   if (confirmedBooking) {
-    return <ReceiptView booking={confirmedBooking} onBookAnother={startNewBooking} />
+    return (
+      <Suspense fallback={<StatusMessage kind="loading" message={t('common.loading')} />}>
+        <ReceiptView booking={confirmedBooking} onBookAnother={startNewBooking} />
+      </Suspense>
+    )
   }
   if (!selectedSlot || !selectedTemple) {
     return <StatusMessage kind="info" message={t('form.selectSlotHint')} />
@@ -180,6 +220,7 @@ export function BookingView() {
         <p className={styles.intro}>{t('booking.intro')}</p>
         <TempleSelect viewModel={viewModel} />
         <DatePicker viewModel={viewModel} />
+        <ShareLinks viewModel={viewModel} />
 
         <h2 className={styles.subheading}>
           {t('slots.heading')}
