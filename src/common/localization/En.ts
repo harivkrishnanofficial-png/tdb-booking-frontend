@@ -8,6 +8,7 @@ export const EN = {
   'common.skipToContent': 'Skip to main content',
   'language.label': 'Language',
   'common.istNote': 'All dates and times are in Indian Standard Time (IST).',
+  'footer.photoCredit': 'Background photo of Sabarimala by AnjanaMenon, CC BY-SA 3.0',
 
   'nav.label': 'Main',
   'nav.book': 'Book darshan',

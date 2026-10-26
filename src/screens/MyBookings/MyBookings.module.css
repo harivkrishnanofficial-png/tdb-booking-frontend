@@ -23,7 +23,7 @@
   border: 1px solid var(--color-border);
   border-top: 4px solid var(--color-gold);
   border-radius: var(--radius-lg);
-  background: var(--color-surface);
+  background: var(--color-surface-translucent);
   box-shadow: var(--shadow-card);
 }
 
@@ -98,7 +98,7 @@
   border: 1px solid var(--color-border);
   border-left: 5px solid var(--color-saffron);
   border-radius: var(--radius-md);
-  background: var(--color-surface);
+  background: var(--color-surface-translucent);
 }
 
 .card[data-status='cancelled'] {

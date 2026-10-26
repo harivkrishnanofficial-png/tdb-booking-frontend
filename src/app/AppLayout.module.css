@@ -1,5 +1,23 @@
 .shell {
+  position: relative;
+  isolation: isolate;
   min-height: 100vh;
+}
+
+/*
+ * Sabarimala sanctum as a faded, semi-transparent backdrop. A fixed layer
+ * (not background-attachment: fixed, which iOS ignores) that fades out
+ * towards the bottom, so it never competes with the cards for contrast.
+ */
+.shell::before {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: url('../assets/sabarimala-temple.jpg') center top / cover no-repeat;
+  opacity: 0.22;
+  content: '';
+  mask-image: linear-gradient(to bottom, #000 0%, #000 35%, transparent 90%);
+  pointer-events: none;
 }
 
 /* Maroon band with a gold kasavu border, the colours of Kerala temple festivals. */
@@ -120,9 +138,12 @@
 }
 
 .footer {
+  display: grid;
+  gap: var(--space-1);
   padding: var(--space-4);
   border-top: 1px solid var(--color-border);
   color: var(--color-muted);
+  background: var(--color-surface-translucent);
   font-size: var(--font-size-sm);
   text-align: center;
 }
@@ -135,6 +156,36 @@
   width: min(100%, var(--content-width));
   margin: 0 auto;
   padding: var(--space-5) var(--space-4) var(--space-6);
+}
+
+/* Phones: nav and language switch get their own full-width rows. */
+@media (max-width: 40rem) {
+  .headerInner {
+    padding: var(--space-3);
+  }
+
+  .lamp {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .nav,
+  .languages {
+    flex: 1 1 100%;
+  }
+
+  .navLink,
+  .language {
+    flex: 1 1 0;
+    justify-content: center;
+    min-width: 0;
+    padding: var(--space-1) var(--space-2);
+    text-align: center;
+  }
+
+  .main {
+    padding: var(--space-4) var(--space-3) var(--space-5);
+  }
 }
 
 .main:focus {
