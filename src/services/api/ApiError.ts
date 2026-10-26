@@ -1,6 +1,7 @@
 export type ApiErrorCode =
   | 'NETWORK'
   | 'INVALID_REQUEST'
+  | 'IDEMPOTENCY_KEY_REUSED'
   | 'SLOT_NOT_FOUND'
   | 'SLOT_STARTED'
   | 'NOT_ENOUGH_TICKETS'
