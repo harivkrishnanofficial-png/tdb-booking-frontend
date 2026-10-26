@@ -4,6 +4,7 @@ export const EN = {
   'app.subtitle': 'Travancore Devaswom Board',
 
   'common.retry': 'Try again',
+  'common.loading': 'Loading…',
   'common.skipToContent': 'Skip to main content',
   'language.label': 'Language',
   'common.istNote': 'All dates and times are in Indian Standard Time (IST).',

@@ -6,6 +6,7 @@ export const ML: Record<MessageKey, string> = {
   'app.subtitle': 'തിരുവിതാംകൂർ ദേവസ്വം ബോർഡ്',
 
   'common.retry': 'വീണ്ടും ശ്രമിക്കുക',
+  'common.loading': 'ലോഡ് ചെയ്യുന്നു…',
   'common.skipToContent': 'പ്രധാന ഉള്ളടക്കത്തിലേക്ക് പോകുക',
   'language.label': 'ഭാഷ',
   'common.istNote': 'എല്ലാ തീയതികളും സമയങ്ങളും ഇന്ത്യൻ സ്റ്റാൻഡേർഡ് സമയത്തിലാണ് (IST).',
