@@ -1,7 +1,7 @@
 import { act, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Slot } from '../../models/Temple.model'
-import { darshanApi } from '../../services/api/MockApi'
+import { configureMockApi, darshanApi } from '../../services/api/MockApi'
 import { db } from '../../services/api/MockDb'
 import { fillDevoteeForm, renderWithProviders, setUpMockApi } from '../../test/TestUtils'
 import { BookingView } from './Booking.view'
@@ -107,6 +107,52 @@ describe('BookingView filters in the URL', () => {
 
     expect(screen.getByRole('radio', { name: /42 of 42 left/ })).toBeInTheDocument()
     expect(screen.queryByText(/99 of 99 left/)).not.toBeInTheDocument()
+  })
+})
+
+describe('BookingView safe submit', () => {
+  beforeEach(setUpMockApi)
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.useRealTimers()
+  })
+
+  it('creates one booking when Book is double-clicked on a slow network', async () => {
+    configureMockApi({ minLatencyMs: 300, maxLatencyMs: 300 })
+    const createBooking = vi.spyOn(darshanApi, 'createBooking')
+    const { user } = await openTomorrowAtSabarimala()
+    await user.click(screen.getByRole('radio', { name: /10:00 am/ }))
+    await fillDevoteeForm(user)
+
+    await user.dblClick(screen.getByRole('button', { name: 'Book darshan' }))
+
+    expect(screen.getByRole('button', { name: 'Booking…' })).toBeDisabled()
+    await screen.findByRole('article', { name: 'Darshan booking confirmed' })
+    expect(createBooking).toHaveBeenCalledTimes(1)
+    expect(db.bookings.size).toBe(1)
+  })
+
+  it('keeps the form after a lost response, and the retry does not book twice', async () => {
+    const { user } = await openTomorrowAtSabarimala()
+    const slot = screen.getByRole('radio', { name: /10:00 am/ })
+    const remainingBefore = db.slots.get(TOMORROW_10AM)?.remaining ?? 0
+    await user.click(slot)
+    await fillDevoteeForm(user, 2)
+
+    // The server commits the booking, but the response never reaches the phone.
+    configureMockApi({ failureRate: 1, failureMode: 'lost-response' })
+    await user.click(screen.getByRole('button', { name: 'Book darshan' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/Booking failed/)
+    expect(screen.getByLabelText('First name')).toHaveValue('Lakshmi')
+    expect(screen.getByLabelText('ID number')).toHaveValue('2345 6789 0123')
+
+    configureMockApi({ failureRate: 0 })
+    await user.click(screen.getByRole('button', { name: 'Book darshan' }))
+
+    await screen.findByRole('article', { name: 'Darshan booking confirmed' })
+    expect(db.bookings.size).toBe(1)
+    expect(db.slots.get(TOMORROW_10AM)?.remaining).toBe(remainingBefore - 2)
   })
 })
 

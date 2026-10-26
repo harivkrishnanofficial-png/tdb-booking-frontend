@@ -30,10 +30,18 @@ export interface StoredBooking {
   qrPayload: string
 }
 
+/** What the server remembers about an idempotency key it has already processed. */
+export interface IdempotencyRecord {
+  /** Keyed hash of the request body, so a reused key with a different body is rejected. */
+  requestHash: string
+  bookingId: string
+}
+
 interface MockDb {
   temples: Temple[]
   slots: Map<string, Slot>
   bookings: Map<string, StoredBooking>
+  idempotencyKeys: Map<string, IdempotencyRecord>
 }
 
 const TEMPLES: Temple[] = [
@@ -105,10 +113,12 @@ export const db: MockDb = {
   temples: TEMPLES,
   slots: createSlots(new Date()),
   bookings: new Map(),
+  idempotencyKeys: new Map(),
 }
 
 /** Re-seeds every table. Today's early slots have already started, relative to `now`. */
 export function seedMockDb(now: Date = new Date()): void {
   db.slots = createSlots(now)
   db.bookings = new Map()
+  db.idempotencyKeys = new Map()
 }

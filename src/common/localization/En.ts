@@ -80,6 +80,7 @@ export const EN = {
 
   'errors.NETWORK': 'The network is slow or unavailable. Please try again.',
   'errors.INVALID_REQUEST': 'Some details are not valid. Please check the form.',
+  'errors.IDEMPOTENCY_KEY_REUSED': 'This request was already used for a different booking. Please try again.',
   'errors.SLOT_NOT_FOUND': 'This slot no longer exists. Please pick another.',
   'errors.SLOT_STARTED': 'Darshan in this slot has already started.',
   'errors.NOT_ENOUGH_TICKETS': 'Not enough tickets are left in this slot. Please pick fewer tickets or another slot.',

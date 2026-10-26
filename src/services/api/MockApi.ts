@@ -157,7 +157,23 @@ function validateRequest(request: BookingRequest) {
   return devotee.data
 }
 
-async function commitBooking(request: BookingRequest): Promise<Booking> {
+/**
+ * Returns the booking already created for this key, or null if the key is new.
+ * A key reused with a different request body is a client bug, so it is rejected.
+ */
+function findReplay(idempotencyKey: string, requestHash: string): StoredBooking | null {
+  const record = db.idempotencyKeys.get(idempotencyKey)
+  if (!record) return null
+  if (record.requestHash !== requestHash) throw new ApiError('IDEMPOTENCY_KEY_REUSED')
+  return db.bookings.get(record.bookingId) ?? null
+}
+
+async function commitBooking(request: BookingRequest, idempotencyKey: string): Promise<Booking> {
+  if (!idempotencyKey) throw new ApiError('INVALID_REQUEST')
+  const requestHash = await hashForLookup(JSON.stringify(request))
+  const replay = findReplay(idempotencyKey, requestHash)
+  if (replay) return toBooking(replay)
+
   const slot = findSlot(request.slotId)
   const devotee = validateRequest(request)
   const idNumber = normalizeIdNumber(devotee.idNumber)
@@ -186,10 +202,15 @@ async function commitBooking(request: BookingRequest): Promise<Booking> {
   }
   const stored: StoredBooking = { ...draft, qrPayload: await createQrPayload(draft, slot) }
 
+  // A duplicate of this request may have committed while this one was encrypting.
+  const concurrentReplay = findReplay(idempotencyKey, requestHash)
+  if (concurrentReplay) return toBooking(concurrentReplay)
+
   if (hasStarted(slot.startsAt)) throw new ApiError('SLOT_STARTED')
   if (slot.remaining < request.tickets) throw new ApiError('NOT_ENOUGH_TICKETS')
   slot.remaining -= request.tickets
   db.bookings.set(stored.id, stored)
+  db.idempotencyKeys.set(idempotencyKey, { requestHash, bookingId: stored.id })
 
   return toBooking(stored)
 }
@@ -210,11 +231,14 @@ function getSlots(templeId: string, date: string, signal?: AbortSignal): Promise
 }
 
 /**
- * Books tickets in a slot.
- * @throws ApiError SLOT_STARTED, NOT_ENOUGH_TICKETS, INVALID_REQUEST or NETWORK.
+ * Books tickets in a slot. Safe to retry: the server stores each
+ * `idempotencyKey` with its booking, and a repeated key returns the original
+ * booking instead of creating a second one, even if the first response was lost.
+ * @throws ApiError SLOT_STARTED, NOT_ENOUGH_TICKETS, INVALID_REQUEST,
+ *   IDEMPOTENCY_KEY_REUSED or NETWORK.
  */
-function createBooking(request: BookingRequest): Promise<Booking> {
-  return simulateNetwork(() => commitBooking(request))
+function createBooking(request: BookingRequest, idempotencyKey: string): Promise<Booking> {
+  return simulateNetwork(() => commitBooking(request, idempotencyKey))
 }
 
 /** A devotee's bookings, found by phone number, in start-time order. */
