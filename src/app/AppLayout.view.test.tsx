@@ -43,9 +43,12 @@ describe('AppLayout accessibility and language', () => {
     // jsdom does not emulate arrow keys inside a native <select>; browsers do.
     await user.selectOptions(temple, 'sabarimala')
 
-    await tabTo(user, screen.getByRole('radio', { name: 'Mon, 26 Oct' }))
+    // Only the selected day is in the tab order; arrows move, Enter picks.
+    await tabTo(user, screen.getByRole('button', { name: /Monday 26 October/ }))
     await user.keyboard('{ArrowRight}')
-    expect(screen.getByRole('radio', { name: 'Tue, 27 Oct' })).toBeChecked()
+    expect(screen.getByRole('button', { name: /Tuesday 27 October/ })).toHaveFocus()
+    await user.keyboard('{Enter}')
+    expect(screen.getByRole('button', { name: /27 October/ }).closest('td')).toHaveAttribute('aria-selected', 'true')
 
     const firstSlot = await screen.findByRole('radio', { name: /5:00 am/ })
     await tabTo(user, firstSlot)
@@ -88,9 +91,10 @@ describe('AppLayout accessibility and language', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: 'ദർശനം ബുക്ക് ചെയ്യുക' })).toBeInTheDocument()
     expect(screen.getByLabelText('ക്ഷേത്രം')).toBeInTheDocument()
-    expect(screen.queryByRole('radio', { name: 'Mon, 26 Oct' })).not.toBeInTheDocument()
-    // 26–31 October are shown with the Malayalam month name.
-    expect(screen.getAllByRole('radio', { name: /ഒക്ടോ/ })).toHaveLength(6)
+    // The calendar month and day names follow the language.
+    expect(screen.queryByRole('button', { name: /26 October/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('grid', { name: /ഒക്.?ടോബർ/u })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /ഒക്.?ടോബർ 26, തിങ്കളാഴ്.?ച/u })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'മലയാളം' })).toHaveAttribute('aria-pressed', 'true')
     expect(document.documentElement).toHaveAttribute('lang', 'ml')
 

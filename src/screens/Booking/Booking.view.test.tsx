@@ -18,7 +18,7 @@ async function openTomorrowAtSabarimala() {
   const result = renderWithProviders(<BookingView />)
   const { user } = result
   await user.selectOptions(await screen.findByLabelText('Temple'), 'sabarimala')
-  await user.click(screen.getByRole('radio', { name: /27 Oct/ }))
+  await user.click(screen.getByRole('button', { name: /27 October/ }))
   await screen.findByRole('radio', { name: /10:00 am/ })
   return result
 }
@@ -86,14 +86,14 @@ describe('BookingView filters in the URL', () => {
     renderWithProviders(<BookingView />, '/?temple=vaikom&date=2026-10-31')
 
     await waitFor(() => expect(screen.getByLabelText('Temple')).toHaveValue('vaikom'))
-    expect(screen.getByRole('radio', { name: 'Sat, 31 Oct' })).toBeChecked()
+    expect(screen.getByRole('button', { name: /31 October/ }).closest('td')).toHaveAttribute('aria-selected', 'true')
     expect(await screen.findByRole('radio', { name: /6:30 pm/ })).toBeInTheDocument()
   })
 
   it('shares the current temple and date on WhatsApp or as a copied link', async () => {
     const { user } = renderWithProviders(<BookingView />)
     await user.selectOptions(await screen.findByLabelText('Temple'), 'sabarimala')
-    await user.click(screen.getByRole('radio', { name: 'Sat, 31 Oct' }))
+    await user.click(screen.getByRole('button', { name: /31 October/ }))
     const link = 'http://localhost:3000/?temple=sabarimala&date=2026-10-31'
 
     const whatsapp = screen.getByRole('link', { name: 'Share on WhatsApp' })
@@ -168,6 +168,25 @@ describe('BookingView safe submit', () => {
     await screen.findByRole('article', { name: 'Darshan booking confirmed' })
     expect(db.bookings.size).toBe(1)
     expect(db.slots.get(TOMORROW_10AM)?.remaining).toBe(remainingBefore - 2)
+  })
+})
+
+describe('BookingView calendar', () => {
+  beforeEach(setUpMockApi)
+  afterEach(() => vi.useRealTimers())
+
+  it('picks a future date in the next month, up to the end of the 30-day window', async () => {
+    const { user } = renderWithProviders(<BookingView />)
+    await user.selectOptions(await screen.findByLabelText('Temple'), 'vaikom')
+    expect(screen.getByRole('button', { name: 'Previous month' })).toBeDisabled()
+
+    await user.click(screen.getByRole('button', { name: 'Next month' }))
+
+    expect(screen.getByRole('grid', { name: /November 2026/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /25 November/ })).toBeDisabled()
+    await user.click(screen.getByRole('button', { name: /24 November/ }))
+    expect(screen.getByRole('heading', { name: /Darshan slots.*24 November/ })).toBeInTheDocument()
+    expect(await screen.findByRole('radio', { name: /6:30 pm/ })).toBeInTheDocument()
   })
 })
 
