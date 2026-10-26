@@ -71,6 +71,8 @@ body {
   min-height: 100vh;
   margin: 0;
   background: var(--color-bg);
+  /* Long words (common in Malayalam) wrap instead of pushing past the screen edge. */
+  overflow-wrap: anywhere;
 }
 
 button,
