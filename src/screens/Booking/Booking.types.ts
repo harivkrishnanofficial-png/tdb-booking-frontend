@@ -56,6 +56,8 @@ export interface BookingFormViewModel {
   onSubmit: (event?: BaseSyntheticEvent) => Promise<void>
   isSubmitting: boolean
   submitErrorCode: ApiErrorCode | null
+  /** Changes on every submit, so the error alert can be re-announced. */
+  submitAttempt: number
   maxTickets: number
   ageCategory: AgeCategory | null
   idType: IdType | undefined

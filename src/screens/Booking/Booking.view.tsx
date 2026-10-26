@@ -193,6 +193,13 @@ export function BookingView() {
       <section className={styles.panel} aria-label={t('form.heading')}>
         <BookingPanel viewModel={viewModel} />
       </section>
+
+      {/* Always rendered, so screen readers announce the text when it changes. */}
+      <p className={styles.visuallyHidden} role="status">
+        {viewModel.confirmedBooking
+          ? t('receipt.announcement', { reference: viewModel.confirmedBooking.reference })
+          : ''}
+      </p>
     </div>
   )
 }

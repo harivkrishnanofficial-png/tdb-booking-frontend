@@ -18,8 +18,17 @@ const CATEGORY_NOTES: Record<AgeCategory, MessageKey> = {
 
 export function BookingFormView({ slot, temple, onBooked }: BookingFormProps) {
   const { t, localize, formatDate, formatTime } = useI18n()
-  const { register, errors, onSubmit, isSubmitting, submitErrorCode, maxTickets, ageCategory, idType } =
-    useBookingFormViewModel({ slot, onBooked })
+  const {
+    register,
+    errors,
+    onSubmit,
+    isSubmitting,
+    submitErrorCode,
+    submitAttempt,
+    maxTickets,
+    ageCategory,
+    idType,
+  } = useBookingFormViewModel({ slot, onBooked })
 
   function errorText(name: FieldName): string | undefined {
     const message = errors[name]?.message
@@ -178,7 +187,8 @@ export function BookingFormView({ slot, temple, onBooked }: BookingFormProps) {
       </div>
 
       {submitErrorCode && (
-        <p className={styles.submitError} role="alert">
+        // Keyed by attempt, so a second identical failure is announced again.
+        <p key={submitAttempt} className={styles.submitError} role="alert">
           {t('form.error', { reason: t(apiErrorKey(submitErrorCode)) })}
         </p>
       )}

@@ -23,7 +23,9 @@ export function setUpMockApi(): void {
 
 /** Renders inside the real providers, at `route` (path plus query string). */
 export function renderWithProviders(ui: ReactElement, route = '/') {
-  const user = userEvent.setup()
+  // No pause between keystrokes: full-form flows otherwise approach the 5 s
+  // test timeout when test files run in parallel.
+  const user = userEvent.setup({ delay: null })
   const view = render(
     <MemoryRouter initialEntries={[route]}>
       <AppProviders queryClient={createQueryClient(false)}>{ui}</AppProviders>

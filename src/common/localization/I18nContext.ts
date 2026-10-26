@@ -4,12 +4,14 @@ import type { ApiErrorCode } from '../../services/api/ApiError'
 import { EN } from './En'
 import type { MessageKey } from './En'
 
-export type Locale = 'en'
+export const LOCALES = ['en', 'ml'] as const
+export type Locale = (typeof LOCALES)[number]
 
 export type MessageValues = Record<string, string | number>
 
 export interface I18nContextValue {
   locale: Locale
+  setLocale: (locale: Locale) => void
   /** Translates a key and fills `{name}` placeholders. */
   t: (key: MessageKey, values?: MessageValues) => string
   /** Picks the current language from text the API returns in both languages. */
