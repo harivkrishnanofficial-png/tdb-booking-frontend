@@ -1,5 +1,10 @@
 import { MAX_TICKETS_PER_BOOKING } from '../../common/constants/AppConstants'
-import type { Booking, BookingLookup, BookingRequest } from '../../models/Booking.model'
+import type {
+  Booking,
+  BookingConfirmation,
+  BookingLookup,
+  BookingRequest,
+} from '../../models/Booking.model'
 import type { Slot, Temple } from '../../models/Temple.model'
 import { hasStarted } from '../../utils/DateTime'
 import {
@@ -173,11 +178,19 @@ function findReplay(idempotencyKey: string, requestHash: string): StoredBooking 
   return db.bookings.get(record.bookingId) ?? null
 }
 
-async function commitBooking(request: BookingRequest, idempotencyKey: string): Promise<Booking> {
+/** The booking plus the slot's remaining tickets, so the UI can update the list at once. */
+async function toConfirmation(stored: StoredBooking): Promise<BookingConfirmation> {
+  return { booking: await toBooking(stored), slotRemaining: findSlot(stored.slotId).remaining }
+}
+
+async function commitBooking(
+  request: BookingRequest,
+  idempotencyKey: string,
+): Promise<BookingConfirmation> {
   if (!idempotencyKey) throw new ApiError('INVALID_REQUEST')
   const requestHash = await hashForLookup(JSON.stringify(request))
   const replay = findReplay(idempotencyKey, requestHash)
-  if (replay) return toBooking(replay)
+  if (replay) return toConfirmation(replay)
 
   const slot = findSlot(request.slotId)
   const devotee = validateRequest(request)
@@ -209,7 +222,7 @@ async function commitBooking(request: BookingRequest, idempotencyKey: string): P
 
   // A duplicate of this request may have committed while this one was encrypting.
   const concurrentReplay = findReplay(idempotencyKey, requestHash)
-  if (concurrentReplay) return toBooking(concurrentReplay)
+  if (concurrentReplay) return toConfirmation(concurrentReplay)
 
   if (hasStarted(slot.startsAt)) throw new ApiError('SLOT_STARTED')
   if (slot.remaining < request.tickets) throw new ApiError('NOT_ENOUGH_TICKETS')
@@ -217,7 +230,7 @@ async function commitBooking(request: BookingRequest, idempotencyKey: string): P
   db.bookings.set(stored.id, stored)
   db.idempotencyKeys.set(idempotencyKey, { requestHash, bookingId: stored.id })
 
-  return toBooking(stored)
+  return toConfirmation(stored)
 }
 
 /** Lists the temples devotees can book darshan at. */
@@ -239,10 +252,12 @@ function getSlots(templeId: string, date: string, signal?: AbortSignal): Promise
  * Books tickets in a slot. Safe to retry: the server stores each
  * `idempotencyKey` with its booking, and a repeated key returns the original
  * booking instead of creating a second one, even if the first response was lost.
+ * Returns the slot's remaining tickets as an absolute number, so applying a
+ * replayed response twice cannot subtract the tickets twice.
  * @throws ApiError SLOT_STARTED, NOT_ENOUGH_TICKETS, INVALID_REQUEST,
  *   IDEMPOTENCY_KEY_REUSED or NETWORK.
  */
-function createBooking(request: BookingRequest, idempotencyKey: string): Promise<Booking> {
+function createBooking(request: BookingRequest, idempotencyKey: string): Promise<BookingConfirmation> {
   return simulateNetwork(() => commitBooking(request, idempotencyKey))
 }
 

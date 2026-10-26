@@ -24,6 +24,8 @@ export const ML: Record<MessageKey, string> = {
   'myBookings.empty': 'ഈ വിവരങ്ങൾക്ക് ബുക്കിങ്ങുകളൊന്നും കണ്ടെത്തിയില്ല.',
   'myBookings.reference': 'റഫ. {reference}',
   'myBookings.tickets': 'ടിക്കറ്റുകൾ: {count}',
+  'myBookings.viewTicket': 'ടിക്കറ്റ് കാണുക',
+  'myBookings.hideTicket': 'ടിക്കറ്റ് മറയ്ക്കുക',
   'myBookings.cancel': 'ബുക്കിങ് റദ്ദാക്കുക',
   'myBookings.confirmPrompt': 'ഈ ബുക്കിങ് റദ്ദാക്കണോ? ഇതിലെ ടിക്കറ്റുകൾ മറ്റ് ഭക്തർക്ക് ലഭ്യമാകും.',
   'myBookings.confirmYes': 'അതെ, റദ്ദാക്കുക',
@@ -128,6 +130,8 @@ export const ML: Record<MessageKey, string> = {
 
   'receipt.heading': 'ദർശന ബുക്കിങ് സ്ഥിരീകരിച്ചു',
   'receipt.announcement': 'ദർശന ബുക്കിങ് സ്ഥിരീകരിച്ചു. നിങ്ങളുടെ ബുക്കിങ് റഫറൻസ് {reference} ആണ്.',
+  'receipt.cancelledHeading': 'ബുക്കിങ് റദ്ദാക്കി',
+  'receipt.cancelledNote': 'ഈ ബുക്കിങ് റദ്ദാക്കിയതിനാൽ ഈ ടിക്കറ്റ് ഉപയോഗിച്ച് പ്രവേശിക്കാൻ കഴിയില്ല.',
   'receipt.reference': 'ബുക്കിങ് റഫറൻസ്',
   'receipt.temple': 'ക്ഷേത്രം',
   'receipt.date': 'തീയതി',

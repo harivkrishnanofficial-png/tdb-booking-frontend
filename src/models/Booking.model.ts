@@ -57,3 +57,9 @@ export interface Booking {
   /** Signed payload encoded in the entry QR code. */
   qrPayload: string
 }
+
+/** createBooking's response: the booking and the slot's tickets left after it. */
+export interface BookingConfirmation {
+  booking: Booking
+  slotRemaining: number
+}

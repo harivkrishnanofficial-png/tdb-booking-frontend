@@ -22,6 +22,8 @@ export const EN = {
   'myBookings.empty': 'No bookings were found for these details.',
   'myBookings.reference': 'Ref. {reference}',
   'myBookings.tickets': 'Tickets: {count}',
+  'myBookings.viewTicket': 'View ticket',
+  'myBookings.hideTicket': 'Hide ticket',
   'myBookings.cancel': 'Cancel booking',
   'myBookings.confirmPrompt': 'Cancel this booking? Its tickets will be released for other devotees.',
   'myBookings.confirmYes': 'Yes, cancel booking',
@@ -125,6 +127,8 @@ export const EN = {
 
   'receipt.heading': 'Darshan booking confirmed',
   'receipt.announcement': 'Darshan booking confirmed. Your booking reference is {reference}.',
+  'receipt.cancelledHeading': 'Booking cancelled',
+  'receipt.cancelledNote': 'This booking was cancelled, so this ticket cannot be used for entry.',
   'receipt.reference': 'Booking reference',
   'receipt.temple': 'Temple',
   'receipt.date': 'Date',

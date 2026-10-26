@@ -10,7 +10,7 @@ import { BookingFormView } from './BookingForm.view'
 
 // The QR code library is only needed after a booking succeeds, so it loads then.
 const ReceiptView = lazy(() =>
-  import('./Receipt.view').then((module) => ({ default: module.ReceiptView })),
+  import('../../components/Receipt/Receipt.view').then((module) => ({ default: module.ReceiptView })),
 )
 
 const UNAVAILABLE_LABELS: Record<Exclude<SlotUnavailableReason, null>, MessageKey> = {
@@ -186,7 +186,7 @@ function BookingPanel({ viewModel }: { viewModel: BookingViewModel }) {
   if (confirmedBooking) {
     return (
       <Suspense fallback={<StatusMessage kind="loading" message={t('common.loading')} />}>
-        <ReceiptView booking={confirmedBooking} onBookAnother={startNewBooking} />
+        <ReceiptView booking={confirmedBooking} onBookAnother={startNewBooking} autoFocus />
       </Suspense>
     )
   }

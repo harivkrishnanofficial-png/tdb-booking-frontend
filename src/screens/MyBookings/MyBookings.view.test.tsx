@@ -58,6 +58,22 @@ describe('MyBookingsView', () => {
     expect(card).toHaveTextContent(/Darshan started at 4:30 pm, so this booking can no longer be cancelled/)
   })
 
+  it('opens the ticket with its QR code when the booking is tapped, and closes it again', async () => {
+    await seedBooking('vaikom-2026-10-27-0730')
+    const { user } = await findBookings()
+    const details = await screen.findByRole('button', { name: /View ticket/ })
+
+    await user.click(details)
+
+    const ticket = screen.getByRole('article', { name: 'Darshan booking confirmed' })
+    expect(within(ticket).getByRole('img', { name: /Entry QR code/ })).toBeInTheDocument()
+    expect(within(ticket).getByText('98XXXXXX10')).toBeInTheDocument()
+    expect(details).toHaveAttribute('aria-expanded', 'true')
+
+    await user.click(details)
+    expect(screen.queryByRole('article', { name: 'Darshan booking confirmed' })).not.toBeInTheDocument()
+  })
+
   it('does not show bookings when the ID does not match the phone', async () => {
     await seedBooking('vaikom-2026-10-27-0730')
     await findBookings('ABC1234567')

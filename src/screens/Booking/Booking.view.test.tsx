@@ -25,7 +25,10 @@ async function openTomorrowAtSabarimala() {
 
 describe('BookingView', () => {
   beforeEach(setUpMockApi)
-  afterEach(() => vi.useRealTimers())
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.useRealTimers()
+  })
 
   it('books 3 tickets in a slot with 10 remaining and then shows 7 remaining', async () => {
     setSlot(TOMORROW_10AM, 10)
@@ -39,6 +42,20 @@ describe('BookingView', () => {
     expect(within(receipt).getByRole('img', { name: /Entry QR code/ })).toBeInTheDocument()
     expect(within(receipt).getByText('98XXXXXX10')).toBeInTheDocument()
     expect(await screen.findByRole('radio', { name: /10:00 am.*7 of 80 left/ })).toBeInTheDocument()
+  })
+
+  it('shows the new count as soon as the booking is confirmed, even if the refetch never returns', async () => {
+    setSlot(TOMORROW_10AM, 10)
+    const { user } = await openTomorrowAtSabarimala()
+    await user.click(screen.getByRole('radio', { name: /10:00 am.*10 of 80 left/ }))
+    await fillDevoteeForm(user, 3)
+    // From here on the network never answers a slot refetch.
+    vi.spyOn(darshanApi, 'getSlots').mockImplementation(() => new Promise(() => {}))
+
+    await user.click(screen.getByRole('button', { name: 'Book darshan' }))
+
+    await screen.findByRole('article', { name: 'Darshan booking confirmed' })
+    expect(screen.getByRole('radio', { name: /10:00 am.*7 of 80 left/ })).toBeInTheDocument()
   })
 
   it('never offers more tickets than remain in the slot', async () => {

@@ -74,8 +74,3 @@ export interface BookingFormViewModel {
   ageCategory: AgeCategory | null
   idType: IdType | undefined
 }
-
-export interface ReceiptProps {
-  booking: Booking
-  onBookAnother: () => void
-}
