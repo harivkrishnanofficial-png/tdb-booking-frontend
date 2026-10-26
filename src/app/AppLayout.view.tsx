@@ -17,9 +17,6 @@ function LampIcon() {
   )
 }
 
-/** Source and licence of the background photo (CC BY-SA 3.0 requires attribution). */
-const PHOTO_CREDIT_URL = 'https://commons.wikimedia.org/wiki/File:Shabarimala.JPG'
-
 /** Each language is named in itself, so devotees can find theirs whatever is showing. */
 const LANGUAGE_NAMES: Record<Locale, string> = { en: 'English', ml: 'മലയാളം' }
 
@@ -75,11 +72,6 @@ export function AppLayout({ children }: { children: ReactNode }) {
       </main>
       <footer className={styles.footer}>
         <p>{t('common.istNote')}</p>
-        <p>
-          <a href={PHOTO_CREDIT_URL} target="_blank" rel="noopener noreferrer">
-            {t('footer.photoCredit')}
-          </a>
-        </p>
       </footer>
     </div>
   )
