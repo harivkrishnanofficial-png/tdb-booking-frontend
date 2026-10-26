@@ -9,6 +9,7 @@ import {
   MIN_DEVOTEE_AGE,
 } from '../../common/constants/AppConstants'
 import type { BookingRequest } from '../../models/Booking.model'
+import type { Slot } from '../../models/Temple.model'
 import { getApiErrorCode } from '../../services/api/ApiError'
 import { darshanApi } from '../../services/api/MockApi'
 import { createBookingFormSchema, getAgeCategory } from '../../utils/Validators'
@@ -82,12 +83,18 @@ export function useBookingFormViewModel({
 
   const mutation = useMutation({
     mutationFn: (request: BookingRequest) => darshanApi.createBooking(request, getIdempotencyKey(request)),
-    onSuccess: (booking) => {
+    onSuccess: ({ booking, slotRemaining }) => {
       idempotencyRef.current = null
+      // Show the new count at once instead of waiting for a refetch, which on a
+      // slow or failing network can take seconds. The server sends an absolute
+      // number, so a replayed response cannot subtract the tickets twice.
+      queryClient.setQueriesData<Slot[]>({ queryKey: queryKeys.slotsRoot }, (slots) =>
+        slots?.map((slot) => (slot.id === booking.slotId ? { ...slot, remaining: slotRemaining } : slot)),
+      )
       onBooked(booking)
     },
-    // Refresh availability even after a failure: the server may have committed
-    // the booking before the response was lost.
+    // Still refetch, even after a failure: the server may have committed the
+    // booking before the response was lost, and others may have booked too.
     onSettled: () => {
       inFlightRef.current = false
       return queryClient.invalidateQueries({ queryKey: queryKeys.slotsRoot })
