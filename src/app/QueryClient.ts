@@ -20,4 +20,6 @@ export const queryKeys = {
   temples: ['temples'] as const,
   slotsRoot: ['slots'] as const,
   slots: (templeId: string, date: string) => ['slots', templeId, date] as const,
+  // The cache lives in memory only. Lookup details never go into the URL or storage.
+  bookings: (phone: string, idNumber: string) => ['bookings', phone, idNumber] as const,
 }

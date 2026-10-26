@@ -1,0 +1,200 @@
+.page {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+.heading {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: var(--font-size-2xl);
+}
+
+.intro {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.lookup {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-top: 4px solid var(--color-gold);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+@media (min-width: 40rem) {
+  .lookup {
+    grid-template-columns: 1fr 1fr auto;
+    align-items: start;
+  }
+
+  .lookup .primary {
+    margin-top: 1.9rem;
+  }
+}
+
+.field {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.field label {
+  font-weight: 600;
+}
+
+.field input {
+  min-height: var(--control-height);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.field [aria-invalid='true'] {
+  border-color: var(--color-danger);
+  box-shadow: inset 0 0 0 1px var(--color-danger);
+}
+
+.hint {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--font-size-sm);
+}
+
+.error {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.failure {
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-danger);
+  background: var(--color-danger-surface);
+  font-weight: 600;
+}
+
+.list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-left: 5px solid var(--color-saffron);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.card[data-status='cancelled'] {
+  border-left-color: var(--color-border-strong);
+  background: var(--color-surface-muted);
+}
+
+.cardHeader {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.temple {
+  margin: 0;
+  font-size: var(--font-size-lg);
+}
+
+.badge {
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  color: var(--color-success);
+  background: var(--color-success-surface);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+
+.card[data-status='cancelled'] .badge {
+  color: var(--color-muted);
+  background: var(--color-border);
+}
+
+.when,
+.meta,
+.pending,
+.reason {
+  margin: 0;
+}
+
+.meta,
+.pending {
+  color: var(--color-muted);
+}
+
+.reason {
+  padding: var(--space-2) var(--space-3);
+  border-left: 4px solid var(--color-gold);
+  background: var(--color-surface-muted);
+}
+
+.confirm {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-surface);
+}
+
+.confirm p {
+  margin: 0;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.primary,
+.secondary,
+.danger {
+  min-height: var(--control-height);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary {
+  border: 0;
+  color: var(--color-on-primary);
+  background: var(--color-primary);
+}
+
+.secondary {
+  justify-self: start;
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-surface);
+}
+
+.danger {
+  border: 0;
+  color: var(--color-on-primary);
+  background: var(--color-danger);
+}
