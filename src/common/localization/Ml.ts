@@ -40,6 +40,8 @@ export const ML: Record<MessageKey, string> = {
   'filters.temple': 'ക്ഷേത്രം',
   'filters.templePlaceholder': 'ക്ഷേത്രം തിരഞ്ഞെടുക്കുക',
   'filters.date': 'ദർശന ദിവസം',
+  'calendar.previousMonth': 'മുൻ മാസം',
+  'calendar.nextMonth': 'അടുത്ത മാസം',
   'share.label': 'ഈ സമയങ്ങൾ പങ്കിടുക',
   'share.whatsapp': 'വാട്ട്സ്ആപ്പിൽ പങ്കിടുക',
   'share.copy': 'ലിങ്ക് പകർത്തുക',

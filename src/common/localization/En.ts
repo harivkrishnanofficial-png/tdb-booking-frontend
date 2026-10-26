@@ -38,6 +38,8 @@ export const EN = {
   'filters.temple': 'Temple',
   'filters.templePlaceholder': 'Select a temple',
   'filters.date': 'Day of darshan',
+  'calendar.previousMonth': 'Previous month',
+  'calendar.nextMonth': 'Next month',
   'share.label': 'Share these slots',
   'share.whatsapp': 'Share on WhatsApp',
   'share.copy': 'Copy link',

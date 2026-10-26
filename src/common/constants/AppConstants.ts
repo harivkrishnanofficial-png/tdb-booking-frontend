@@ -4,8 +4,8 @@ export const IST_TIME_ZONE = 'Asia/Kolkata'
 /** IST has no daylight saving, so a fixed offset is safe for building timestamps. */
 export const IST_UTC_OFFSET = '+05:30'
 
-/** Devotees can book from today up to this many days, including today. */
-export const BOOKING_WINDOW_DAYS = 7
+/** Devotees can book from today up to this many days ahead, including today (assumption: 30). */
+export const BOOKING_WINDOW_DAYS = 30
 
 /** Per-booking cap so one devotee cannot block a whole slot (assumption, see PR #1). */
 export const MAX_TICKETS_PER_BOOKING = 10

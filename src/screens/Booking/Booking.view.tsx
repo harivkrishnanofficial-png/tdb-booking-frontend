@@ -1,4 +1,5 @@
 import { Suspense, lazy } from 'react'
+import { CalendarView } from '../../components/Calendar/Calendar.view'
 import { StatusMessage } from '../../components/StatusMessage/StatusMessage.view'
 import { useI18n } from '../../common/localization/I18nContext'
 import type { MessageKey } from '../../common/localization/En'
@@ -56,27 +57,23 @@ function TempleSelect({ viewModel }: { viewModel: BookingViewModel }) {
 }
 
 function DatePicker({ viewModel }: { viewModel: BookingViewModel }) {
-  const { t, formatDate } = useI18n()
+  const { t } = useI18n()
   const { dates, date, selectDate } = viewModel
 
   return (
-    <fieldset className={styles.fieldset}>
-      <legend>{t('filters.date')}</legend>
-      <div className={styles.chips}>
-        {dates.map((day) => (
-          <label key={day} className={styles.chip}>
-            <input
-              type="radio"
-              name="date"
-              value={day}
-              checked={day === date}
-              onChange={() => selectDate(day)}
-            />
-            <span>{formatDate(day)}</span>
-          </label>
-        ))}
-      </div>
-    </fieldset>
+    <div className={styles.field}>
+      <p id="darshan-date" className={styles.dateLabel}>
+        {t('filters.date')}
+      </p>
+      <CalendarView
+        labelledBy="darshan-date"
+        value={date}
+        min={dates[0]}
+        max={dates[dates.length - 1]}
+        today={dates[0]}
+        onChange={selectDate}
+      />
+    </div>
   )
 }
 

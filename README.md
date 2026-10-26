@@ -75,6 +75,9 @@ Every screen is split into a view (`*.view.tsx`, markup), a view model
   AES-GCM. Lookups use keyed hashes, and the UI only ever sees masked values.
 - **Idempotent booking**: `createBooking(request, idempotencyKey)` replays the
   original booking for a repeated key, so retries never book twice.
+- **Calendar**: an accessible month calendar (arrow keys, Page Up/Down, Enter)
+  for the next 30 days, in the chosen language. The native date input was not
+  used because it follows the device language.
 - **Verification**: My bookings needs the mobile number and the ID number.
 - **Times**: always shown in IST (`Asia/Kolkata`); tests run in New York time to
   prove it.

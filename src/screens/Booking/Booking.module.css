@@ -86,18 +86,7 @@
   font-weight: 600;
 }
 
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-/* Native radios stay in the DOM (keyboard + screen readers); the label is the visual chip. */
-.chip {
-  position: relative;
-}
-
-.chip input,
+/* Native radios stay in the DOM (keyboard + screen readers); the label is the visual card. */
 .slot input {
   position: absolute;
   inset: 0;
@@ -108,27 +97,14 @@
   cursor: inherit;
 }
 
-.chip span {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--control-height);
-  padding: 0 var(--space-3);
-  border: 1px solid var(--color-border-strong);
-  border-radius: 999px;
-  background: var(--color-surface);
-  cursor: pointer;
-}
-
-.chip input:checked + span {
-  color: var(--color-on-primary);
-  border-color: var(--color-primary);
-  background: var(--color-primary);
-}
-
-.chip input:focus-visible + span,
 .slot:has(input:focus-visible) {
   outline: 3px solid var(--color-focus);
   outline-offset: 2px;
+}
+
+.dateLabel {
+  margin: 0;
+  font-weight: 600;
 }
 
 .slotList {
