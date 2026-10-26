@@ -10,7 +10,6 @@ export const ML: Record<MessageKey, string> = {
   'common.skipToContent': 'പ്രധാന ഉള്ളടക്കത്തിലേക്ക് പോകുക',
   'language.label': 'ഭാഷ',
   'common.istNote': 'എല്ലാ തീയതികളും സമയങ്ങളും ഇന്ത്യൻ സ്റ്റാൻഡേർഡ് സമയത്തിലാണ് (IST).',
-  'footer.photoCredit': 'പശ്ചാത്തല ചിത്രം: ശബരിമല, AnjanaMenon, CC BY-SA 3.0',
 
   'nav.label': 'പ്രധാന മെനു',
   'nav.book': 'ദർശനം ബുക്ക് ചെയ്യുക',
@@ -41,6 +40,12 @@ export const ML: Record<MessageKey, string> = {
   'filters.temple': 'ക്ഷേത്രം',
   'filters.templePlaceholder': 'ക്ഷേത്രം തിരഞ്ഞെടുക്കുക',
   'filters.date': 'ദർശന ദിവസം',
+  'share.label': 'ഈ സമയങ്ങൾ പങ്കിടുക',
+  'share.whatsapp': 'വാട്ട്സ്ആപ്പിൽ പങ്കിടുക',
+  'share.copy': 'ലിങ്ക് പകർത്തുക',
+  'share.copied': 'ലിങ്ക് പകർത്തി. ഏത് ചാറ്റിലും ഒട്ടിക്കാം.',
+  'share.copyFailed': 'പകർത്താൻ കഴിഞ്ഞില്ല. ബ്രൗസറിലെ വിലാസം പകർത്തുക.',
+  'share.message': '{temple} – ദർശന സമയങ്ങൾ, {date}: {url}',
   'temples.loading': 'ക്ഷേത്രങ്ങൾ ലഭ്യമാക്കുന്നു…',
   'temples.error': 'ക്ഷേത്രങ്ങൾ ലഭ്യമാക്കാൻ കഴിഞ്ഞില്ല.',
 

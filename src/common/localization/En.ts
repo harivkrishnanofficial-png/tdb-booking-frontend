@@ -8,7 +8,6 @@ export const EN = {
   'common.skipToContent': 'Skip to main content',
   'language.label': 'Language',
   'common.istNote': 'All dates and times are in Indian Standard Time (IST).',
-  'footer.photoCredit': 'Background photo of Sabarimala by AnjanaMenon, CC BY-SA 3.0',
 
   'nav.label': 'Main',
   'nav.book': 'Book darshan',
@@ -39,6 +38,12 @@ export const EN = {
   'filters.temple': 'Temple',
   'filters.templePlaceholder': 'Select a temple',
   'filters.date': 'Day of darshan',
+  'share.label': 'Share these slots',
+  'share.whatsapp': 'Share on WhatsApp',
+  'share.copy': 'Copy link',
+  'share.copied': 'Link copied. Paste it in any chat.',
+  'share.copyFailed': 'Could not copy. Copy the address from your browser instead.',
+  'share.message': '{temple} darshan slots for {date}: {url}',
   'temples.loading': 'Loading temples…',
   'temples.error': 'We could not load the temples.',
 

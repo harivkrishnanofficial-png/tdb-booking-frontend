@@ -1,13 +1,20 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router'
+import { useLocation, useSearchParams } from 'react-router'
 import { queryKeys } from '../../app/QueryClient'
 import { BOOKING_WINDOW_DAYS } from '../../common/constants/AppConstants'
 import type { Booking } from '../../models/Booking.model'
 import type { Slot } from '../../models/Temple.model'
 import { darshanApi } from '../../services/api/MockApi'
 import { getBookingWindow, hasStarted, toIstDateKey } from '../../utils/DateTime'
-import type { BookingViewModel, SlotOption, SlotsState, TemplesState } from './Booking.types'
+import type {
+  BookingViewModel,
+  CopyResult,
+  CopyStatus,
+  SlotOption,
+  SlotsState,
+  TemplesState,
+} from './Booking.types'
 
 /** Query-string names, kept short so shared links stay readable on WhatsApp. */
 const TEMPLE_PARAM = 'temple'
@@ -37,6 +44,7 @@ export function useBookingViewModel(): BookingViewModel {
   const today = toIstDateKey(new Date())
   const dates = useMemo(() => getBookingWindow(today, BOOKING_WINDOW_DAYS), [today])
   const [searchParams, setSearchParams] = useSearchParams()
+  const { pathname } = useLocation()
 
   const templesQuery = useQuery({
     queryKey: queryKeys.temples,
@@ -80,6 +88,23 @@ export function useBookingViewModel(): BookingViewModel {
     slotOptions?.find(({ slot, unavailableReason }) => slot.id === current.slotId && !unavailableReason)
       ?.slot ?? null
 
+  // Always carries both temple and day, even if the current URL omits the day,
+  // so the link opens the same view on any phone.
+  const shareUrl = selectedTemple ? buildShareUrl(pathname, templeId, date) : null
+  const [copyResult, setCopyResult] = useState<CopyResult | null>(null)
+  const copyStatus: CopyStatus = copyResult?.filterKey === filterKey ? copyResult.status : 'idle'
+
+  /** Clipboard access can be refused (permissions, non-HTTPS), so failure is reported, not thrown. */
+  async function copyShareLink() {
+    if (!shareUrl) return
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      setCopyResult({ filterKey, status: 'copied' })
+    } catch {
+      setCopyResult({ filterKey, status: 'failed' })
+    }
+  }
+
   /**
    * Pushes a history entry, so Back returns to the previous temple and day.
    * Empty values remove the parameter, so shared links stay clean.
@@ -110,7 +135,17 @@ export function useBookingViewModel(): BookingViewModel {
     retrySlots: () => void slotsQuery.refetch(),
     handleBooked: (booking) => setSelection({ filterKey, slotId: booking.slotId, booking }),
     startNewBooking: () => setSelection({ filterKey, slotId: null, booking: null }),
+    shareUrl,
+    copyStatus,
+    copyShareLink: () => void copyShareLink(),
   }
+}
+
+function buildShareUrl(pathname: string, templeId: string, date: string): string {
+  const url = new URL(pathname, window.location.origin)
+  url.searchParams.set(TEMPLE_PARAM, templeId)
+  url.searchParams.set(DATE_PARAM, date)
+  return url.toString()
 }
 
 function getSlotsState(templeId: string, isError: boolean, options?: SlotOption[]): SlotsState {

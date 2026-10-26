@@ -42,6 +42,18 @@ export interface BookingViewModel {
   retrySlots: () => void
   handleBooked: (booking: Booking) => void
   startNewBooking: () => void
+  /** Absolute link to the current temple and day, or null before a temple is chosen. */
+  shareUrl: string | null
+  copyStatus: CopyStatus
+  copyShareLink: () => void
+}
+
+export type CopyStatus = 'idle' | 'copied' | 'failed'
+
+/** Tagged with its filter, so the "Link copied" note clears when the selection changes. */
+export interface CopyResult {
+  filterKey: string
+  status: Exclude<CopyStatus, 'idle'>
 }
 
 export interface BookingFormProps {
