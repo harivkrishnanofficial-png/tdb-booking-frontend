@@ -74,6 +74,51 @@
   outline-color: var(--color-gold-light);
 }
 
+.languages {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--color-gold-light);
+  border-radius: var(--radius-sm);
+}
+
+.language {
+  min-height: 2.5rem;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: calc(var(--radius-sm) - 2px);
+  color: var(--color-on-primary);
+  background: transparent;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.language[aria-pressed='true'] {
+  color: var(--color-primary);
+  background: var(--color-gold-light);
+}
+
+.language:focus-visible {
+  outline-color: var(--color-gold-light);
+}
+
+/* Hidden until focused, then shown above the header (WCAG 2.4.1 bypass blocks). */
+.skipLink {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: 10;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  color: var(--color-primary);
+  background: var(--color-gold-light);
+  font-weight: 700;
+  transform: translateY(-200%);
+}
+
+.skipLink:focus {
+  transform: none;
+}
+
 .footer {
   padding: var(--space-4);
   border-top: 1px solid var(--color-border);

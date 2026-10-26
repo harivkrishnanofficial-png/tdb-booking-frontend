@@ -4,6 +4,8 @@ export const EN = {
   'app.subtitle': 'Travancore Devaswom Board',
 
   'common.retry': 'Try again',
+  'common.skipToContent': 'Skip to main content',
+  'language.label': 'Language',
   'common.istNote': 'All dates and times are in Indian Standard Time (IST).',
 
   'nav.label': 'Main',
@@ -113,6 +115,7 @@ export const EN = {
   'errors.BOOKING_ALREADY_CANCELLED': 'This booking is already cancelled.',
 
   'receipt.heading': 'Darshan booking confirmed',
+  'receipt.announcement': 'Darshan booking confirmed. Your booking reference is {reference}.',
   'receipt.reference': 'Booking reference',
   'receipt.temple': 'Temple',
   'receipt.date': 'Date',

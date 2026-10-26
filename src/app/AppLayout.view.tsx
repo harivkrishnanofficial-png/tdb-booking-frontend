@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router'
-import { useI18n } from '../common/localization/I18nContext'
+import { LOCALES, useI18n } from '../common/localization/I18nContext'
+import type { Locale } from '../common/localization/I18nContext'
 import { PATHS } from '../navigation/paths'
 import styles from './AppLayout.module.css'
 
@@ -16,11 +17,38 @@ function LampIcon() {
   )
 }
 
+/** Each language is named in itself, so devotees can find theirs whatever is showing. */
+const LANGUAGE_NAMES: Record<Locale, string> = { en: 'English', ml: 'മലയാളം' }
+
+function LanguageSwitcher() {
+  const { t, locale, setLocale } = useI18n()
+
+  return (
+    <div className={styles.languages} role="group" aria-label={t('language.label')}>
+      {LOCALES.map((option) => (
+        <button
+          key={option}
+          type="button"
+          lang={option}
+          className={styles.language}
+          aria-pressed={option === locale}
+          onClick={() => setLocale(option)}
+        >
+          {LANGUAGE_NAMES[option]}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export function AppLayout({ children }: { children: ReactNode }) {
   const { t } = useI18n()
 
   return (
     <div className={styles.shell}>
+      <a href="#main" className={styles.skipLink}>
+        {t('common.skipToContent')}
+      </a>
       <header className={styles.header}>
         <div className={styles.headerInner}>
           <LampIcon />
@@ -36,6 +64,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
               {t('nav.myBookings')}
             </NavLink>
           </nav>
+          <LanguageSwitcher />
         </div>
       </header>
       <main id="main" className={styles.main} tabIndex={-1}>
