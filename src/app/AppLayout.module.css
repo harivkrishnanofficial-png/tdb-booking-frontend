@@ -1,0 +1,50 @@
+.shell {
+  min-height: 100vh;
+}
+
+/* Maroon band with a gold kasavu border, the colours of Kerala temple festivals. */
+.header {
+  color: var(--color-on-primary);
+  background: var(--color-primary);
+  border-bottom: 6px double var(--color-gold);
+}
+
+.headerInner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  width: min(100%, var(--content-width));
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-4);
+}
+
+.lamp {
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  color: var(--color-gold-light);
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--color-gold-light);
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.04em;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+}
+
+.main {
+  width: min(100%, var(--content-width));
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-4) var(--space-6);
+}
+
+.main:focus {
+  outline: none;
+}

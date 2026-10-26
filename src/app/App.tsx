@@ -1,5 +1,13 @@
-import { HomeView } from '../screens/Home/Home.view'
+import { BookingView } from '../screens/Booking/Booking.view'
+import { AppLayout } from './AppLayout.view'
+import { AppProviders } from './AppProviders'
 
 export function App() {
-  return <HomeView />
+  return (
+    <AppProviders>
+      <AppLayout>
+        <BookingView />
+      </AppLayout>
+    </AppProviders>
+  )
 }
