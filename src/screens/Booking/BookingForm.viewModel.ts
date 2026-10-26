@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { queryKeys } from '../../app/QueryClient'
 import {
@@ -14,6 +14,11 @@ import { darshanApi } from '../../services/api/MockApi'
 import { createBookingFormSchema, getAgeCategory } from '../../utils/Validators'
 import type { BookingFormValues } from '../../utils/Validators'
 import type { BookingFormProps, BookingFormViewModel } from './Booking.types'
+
+interface IdempotencyEntry {
+  requestJson: string
+  key: string
+}
 
 const DEFAULT_VALUES: Partial<BookingFormValues> = {
   firstName: '',
@@ -41,7 +46,7 @@ function isValidAge(age: unknown): age is number {
 
 /**
  * Booking form behaviour: validation against the selected slot, the live age
- * category, and submitting the booking.
+ * category, and a submit that is safe against double taps and retries.
  */
 export function useBookingFormViewModel({
   slot,
@@ -57,20 +62,50 @@ export function useBookingFormViewModel({
   })
   const [age, idType] = useWatch({ control, name: ['age', 'idType'] })
 
+  // Set synchronously on the first tap. `isPending` only updates after a
+  // re-render, so on its own it cannot stop a fast double tap.
+  const inFlightRef = useRef(false)
+  const idempotencyRef = useRef<IdempotencyEntry | null>(null)
+
+  /**
+   * Reuses the key while the devotee retries the same details, so a retry
+   * after a lost response cannot book twice. Edited details are a new
+   * booking and get a new key.
+   */
+  function getIdempotencyKey(request: BookingRequest): string {
+    const requestJson = JSON.stringify(request)
+    if (idempotencyRef.current?.requestJson !== requestJson) {
+      idempotencyRef.current = { requestJson, key: crypto.randomUUID() }
+    }
+    return idempotencyRef.current.key
+  }
+
   const mutation = useMutation({
-    mutationFn: (values: BookingFormValues) =>
-      darshanApi.createBooking(toBookingRequest(slot.id, values)),
-    onSuccess: onBooked,
+    mutationFn: (request: BookingRequest) => darshanApi.createBooking(request, getIdempotencyKey(request)),
+    onSuccess: (booking) => {
+      idempotencyRef.current = null
+      onBooked(booking)
+    },
     // Refresh availability even after a failure: the server may have committed
     // the booking before the response was lost.
-    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.slotsRoot }),
+    onSettled: () => {
+      inFlightRef.current = false
+      return queryClient.invalidateQueries({ queryKey: queryKeys.slotsRoot })
+    },
+  })
+
+  // On failure the form is left untouched, so the devotee keeps what they typed.
+  const onSubmit = handleSubmit((values) => {
+    if (inFlightRef.current) return
+    inFlightRef.current = true
+    mutation.mutate(toBookingRequest(slot.id, values))
   })
 
   return {
     register,
     errors: formState.errors,
-    onSubmit: handleSubmit((values) => mutation.mutate(values)),
-    isSubmitting: mutation.isPending,
+    onSubmit,
+    isSubmitting: mutation.isPending || formState.isSubmitting,
     submitErrorCode: mutation.isError ? getApiErrorCode(mutation.error) : null,
     maxTickets: Math.min(MAX_TICKETS_PER_BOOKING, slot.remaining),
     ageCategory: isValidAge(age) ? getAgeCategory(age) : null,
