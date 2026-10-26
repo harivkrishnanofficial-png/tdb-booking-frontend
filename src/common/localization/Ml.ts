@@ -10,6 +10,7 @@ export const ML: Record<MessageKey, string> = {
   'common.skipToContent': 'പ്രധാന ഉള്ളടക്കത്തിലേക്ക് പോകുക',
   'language.label': 'ഭാഷ',
   'common.istNote': 'എല്ലാ തീയതികളും സമയങ്ങളും ഇന്ത്യൻ സ്റ്റാൻഡേർഡ് സമയത്തിലാണ് (IST).',
+  'footer.photoCredit': 'പശ്ചാത്തല ചിത്രം: ശബരിമല, AnjanaMenon, CC BY-SA 3.0',
 
   'nav.label': 'പ്രധാന മെനു',
   'nav.book': 'ദർശനം ബുക്ക് ചെയ്യുക',

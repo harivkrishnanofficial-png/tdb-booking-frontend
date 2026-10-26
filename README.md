@@ -81,3 +81,9 @@ Every screen is split into a view (`*.view.tsx`, markup), a view model
 
 Frontend checks improve the user experience only. A real backend must repeat
 every validation and authorisation check.
+
+## Credits
+
+Background photo: [Sabarimala sanctum](https://commons.wikimedia.org/wiki/File:Shabarimala.JPG)
+by AnjanaMenon at Malayalam Wikipedia, licensed
+[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
