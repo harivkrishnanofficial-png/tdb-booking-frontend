@@ -7,5 +7,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/Setup.ts',
     css: true,
+    // Run in a non-IST zone, so tests prove times are shown in IST whatever the device zone.
+    env: { TZ: 'America/New_York' },
   },
 })
