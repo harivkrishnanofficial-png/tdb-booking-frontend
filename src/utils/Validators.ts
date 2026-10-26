@@ -93,3 +93,12 @@ export function createBookingFormSchema(remaining: number) {
 }
 
 export type BookingFormValues = z.infer<ReturnType<typeof createBookingFormSchema>>
+
+/** Finding bookings: the ID type is not asked again, so any valid ID format is accepted. */
+export const bookingLookupSchema = z.object({
+  phone: z.string().trim().regex(PHONE_PATTERN, 'validation.phoneInvalid'),
+  idNumber: z
+    .string()
+    .trim()
+    .refine((value) => ID_TYPES.some((idType) => isValidIdNumber(idType, value)), 'validation.idUnknown'),
+})

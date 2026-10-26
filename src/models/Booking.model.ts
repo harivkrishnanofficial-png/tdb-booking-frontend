@@ -23,6 +23,12 @@ export interface Devotee {
   idNumber: string
 }
 
+/** Both must match the booking: a phone number alone is too easy to guess or know. */
+export interface BookingLookup {
+  phone: string
+  idNumber: string
+}
+
 export interface BookingRequest {
   slotId: string
   tickets: number
