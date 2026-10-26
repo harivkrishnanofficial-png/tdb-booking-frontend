@@ -1,5 +1,7 @@
-import { screen, within } from '@testing-library/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Slot } from '../../models/Temple.model'
+import { darshanApi } from '../../services/api/MockApi'
 import { db } from '../../services/api/MockDb'
 import { fillDevoteeForm, renderWithProviders, setUpMockApi } from '../../test/TestUtils'
 import { BookingView } from './Booking.view'
@@ -72,3 +74,49 @@ describe('BookingView', () => {
     expect(db.bookings.size).toBe(0)
   })
 })
+
+describe('BookingView filters in the URL', () => {
+  beforeEach(setUpMockApi)
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.useRealTimers()
+  })
+
+  it('opens a shared link on the same temple and date', async () => {
+    renderWithProviders(<BookingView />, '/?temple=vaikom&date=2026-10-31')
+
+    await waitFor(() => expect(screen.getByLabelText('Temple')).toHaveValue('vaikom'))
+    expect(screen.getByRole('radio', { name: 'Sat, 31 Oct' })).toBeChecked()
+    expect(await screen.findByRole('radio', { name: /6:30 pm/ })).toBeInTheDocument()
+  })
+
+  it('does not let a slow response for an earlier temple overwrite the current one', async () => {
+    let resolveSlowRequest: (slots: Slot[]) => void = () => {}
+    vi.spyOn(darshanApi, 'getSlots').mockImplementation((templeId) =>
+      templeId === 'sabarimala'
+        ? new Promise((resolve) => (resolveSlowRequest = resolve))
+        : Promise.resolve([fakeSlot(templeId, 42)]),
+    )
+    const { user } = renderWithProviders(<BookingView />)
+
+    await user.selectOptions(await screen.findByLabelText('Temple'), 'sabarimala')
+    await user.selectOptions(screen.getByLabelText('Temple'), 'vaikom')
+    expect(await screen.findByRole('radio', { name: /42 of 42 left/ })).toBeInTheDocument()
+
+    await act(async () => resolveSlowRequest([fakeSlot('sabarimala', 99)]))
+
+    expect(screen.getByRole('radio', { name: /42 of 42 left/ })).toBeInTheDocument()
+    expect(screen.queryByText(/99 of 99 left/)).not.toBeInTheDocument()
+  })
+})
+
+function fakeSlot(templeId: string, remaining: number): Slot {
+  return {
+    id: `${templeId}-2026-10-26-1830`,
+    templeId,
+    date: '2026-10-26',
+    startsAt: '2026-10-26T13:00:00.000Z',
+    capacity: remaining,
+    remaining,
+  }
+}

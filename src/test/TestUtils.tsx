@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactElement } from 'react'
+import { MemoryRouter } from 'react-router'
 import { vi } from 'vitest'
 import { AppProviders } from '../app/AppProviders'
 import { createQueryClient } from '../app/QueryClient'
@@ -20,9 +21,14 @@ export function setUpMockApi(): void {
   configureMockApi({ failureRate: 0, minLatencyMs: 0, maxLatencyMs: 0 })
 }
 
-export function renderWithProviders(ui: ReactElement) {
+/** Renders inside the real providers, at `route` (path plus query string). */
+export function renderWithProviders(ui: ReactElement, route = '/') {
   const user = userEvent.setup()
-  const view = render(<AppProviders queryClient={createQueryClient(false)}>{ui}</AppProviders>)
+  const view = render(
+    <MemoryRouter initialEntries={[route]}>
+      <AppProviders queryClient={createQueryClient(false)}>{ui}</AppProviders>
+    </MemoryRouter>,
+  )
   return { user, ...view }
 }
 

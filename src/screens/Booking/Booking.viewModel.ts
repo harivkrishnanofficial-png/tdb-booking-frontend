@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { queryKeys } from '../../app/QueryClient'
 import { BOOKING_WINDOW_DAYS } from '../../common/constants/AppConstants'
 import type { Booking } from '../../models/Booking.model'
@@ -8,6 +9,17 @@ import { darshanApi } from '../../services/api/MockApi'
 import { getBookingWindow, hasStarted, toIstDateKey } from '../../utils/DateTime'
 import type { BookingViewModel, SlotOption, SlotsState, TemplesState } from './Booking.types'
 
+/** Query-string names, kept short so shared links stay readable on WhatsApp. */
+const TEMPLE_PARAM = 'temple'
+const DATE_PARAM = 'date'
+
+interface Selection {
+  /** The temple and day this selection was made for. */
+  filterKey: string
+  slotId: string | null
+  booking: Booking | null
+}
+
 function toSlotOption(slot: Slot, now: Date): SlotOption {
   if (hasStarted(slot.startsAt, now)) return { slot, unavailableReason: 'started' }
   if (slot.remaining === 0) return { slot, unavailableReason: 'full' }
@@ -15,17 +27,16 @@ function toSlotOption(slot: Slot, now: Date): SlotOption {
 }
 
 /**
- * State and behaviour for the booking screen: the temple and day the devotee
- * picked, the slots for that choice, the selected slot and the last booking.
+ * State and behaviour for the booking screen.
+ *
+ * The temple and day live in the URL, so they survive a refresh, can be shared
+ * as a link, and the browser Back button restores the previous choice. A
+ * missing or out-of-range date (for example an old shared link) falls back to today.
  */
 export function useBookingViewModel(): BookingViewModel {
   const today = toIstDateKey(new Date())
   const dates = useMemo(() => getBookingWindow(today, BOOKING_WINDOW_DAYS), [today])
-
-  const [templeId, setTempleId] = useState('')
-  const [date, setDate] = useState(today)
-  const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null)
-  const [confirmedBooking, setConfirmedBooking] = useState<Booking | null>(null)
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const templesQuery = useQuery({
     queryKey: queryKeys.temples,
@@ -33,13 +44,29 @@ export function useBookingViewModel(): BookingViewModel {
     staleTime: Infinity,
   })
 
-  // Each temple and day is its own cache entry, so the slots shown always
-  // belong to the current selection. TanStack Query aborts superseded requests.
+  const requestedTemple = searchParams.get(TEMPLE_PARAM) ?? ''
+  const requestedDate = searchParams.get(DATE_PARAM) ?? ''
+  const selectedTemple = templesQuery.data?.find(({ id }) => id === requestedTemple) ?? null
+  // Fetch slots straight away from the link rather than waiting for the temple
+  // list; drop the temple only once the list proves it does not exist.
+  const isUnknownTemple = templesQuery.data !== undefined && !selectedTemple
+  const templeId = isUnknownTemple ? '' : requestedTemple
+  const date = dates.includes(requestedDate) ? requestedDate : today
+
+  // Each temple and day is its own cache entry, so a slow response for a
+  // selection the devotee has already left can never replace the current one.
+  // TanStack Query also aborts the superseded request through `signal`.
   const slotsQuery = useQuery({
     queryKey: queryKeys.slots(templeId, date),
     queryFn: ({ signal }) => darshanApi.getSlots(templeId, date, signal),
     enabled: templeId !== '',
   })
+
+  // The picked slot and booking belong to one temple and day. Tagging them with
+  // that filter means navigating Back or Forward drops them without an effect.
+  const filterKey = `${templeId}|${date}`
+  const [selection, setSelection] = useState<Selection>({ filterKey, slotId: null, booking: null })
+  const current = selection.filterKey === filterKey ? selection : { slotId: null, booking: null }
 
   const templesState: TemplesState = templesQuery.data
     ? { status: 'success', temples: templesQuery.data }
@@ -50,13 +77,20 @@ export function useBookingViewModel(): BookingViewModel {
 
   // A slot that filled up or started after it was picked can no longer be booked.
   const selectedSlot =
-    slotOptions?.find(({ slot, unavailableReason }) => slot.id === selectedSlotId && !unavailableReason)
+    slotOptions?.find(({ slot, unavailableReason }) => slot.id === current.slotId && !unavailableReason)
       ?.slot ?? null
-  const selectedTemple = templesQuery.data?.find(({ id }) => id === templeId) ?? null
 
-  function resetSelection() {
-    setSelectedSlotId(null)
-    setConfirmedBooking(null)
+  /**
+   * Pushes a history entry, so Back returns to the previous temple and day.
+   * Empty values remove the parameter, so shared links stay clean.
+   */
+  function updateFilters(changes: Record<string, string>) {
+    const next = new URLSearchParams(searchParams)
+    Object.entries(changes).forEach(([name, value]) => {
+      if (value) next.set(name, value)
+      else next.delete(name)
+    })
+    setSearchParams(next)
   }
 
   return {
@@ -65,26 +99,17 @@ export function useBookingViewModel(): BookingViewModel {
     templeId,
     date,
     dates,
-    selectedSlotId,
+    selectedSlotId: current.slotId,
     selectedSlot,
     selectedTemple,
-    confirmedBooking,
-    selectTemple: (nextTempleId) => {
-      setTempleId(nextTempleId)
-      resetSelection()
-    },
-    selectDate: (nextDate) => {
-      setDate(nextDate)
-      resetSelection()
-    },
-    selectSlot: (slotId) => {
-      setSelectedSlotId(slotId)
-      setConfirmedBooking(null)
-    },
+    confirmedBooking: current.booking,
+    selectTemple: (nextTempleId) => updateFilters({ [TEMPLE_PARAM]: nextTempleId, [DATE_PARAM]: date }),
+    selectDate: (nextDate) => updateFilters({ [DATE_PARAM]: nextDate }),
+    selectSlot: (slotId) => setSelection({ filterKey, slotId, booking: null }),
     retryTemples: () => void templesQuery.refetch(),
     retrySlots: () => void slotsQuery.refetch(),
-    handleBooked: setConfirmedBooking,
-    startNewBooking: resetSelection,
+    handleBooked: (booking) => setSelection({ filterKey, slotId: booking.slotId, booking }),
+    startNewBooking: () => setSelection({ filterKey, slotId: null, booking: null }),
   }
 }
 
