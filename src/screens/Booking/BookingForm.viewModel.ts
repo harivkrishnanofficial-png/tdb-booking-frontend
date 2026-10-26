@@ -107,6 +107,7 @@ export function useBookingFormViewModel({
     onSubmit,
     isSubmitting: mutation.isPending || formState.isSubmitting,
     submitErrorCode: mutation.isError ? getApiErrorCode(mutation.error) : null,
+    submitAttempt: mutation.submittedAt,
     maxTickets: Math.min(MAX_TICKETS_PER_BOOKING, slot.remaining),
     ageCategory: isValidAge(age) ? getAgeCategory(age) : null,
     idType,

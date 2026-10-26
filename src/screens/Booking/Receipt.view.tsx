@@ -1,4 +1,5 @@
 import { QRCodeSVG } from 'qrcode.react'
+import { useEffect, useRef } from 'react'
 import { useI18n } from '../../common/localization/I18nContext'
 import type { ReceiptProps } from './Booking.types'
 import styles from './Receipt.module.css'
@@ -12,6 +13,13 @@ const QR_SIZE_PX = 176
 export function ReceiptView({ booking, onBookAnother }: ReceiptProps) {
   const { t, localize, formatDate, formatTime } = useI18n()
   const idTypeLabel = t(`idType.${booking.idType}`)
+  const headingRef = useRef<HTMLHeadingElement>(null)
+
+  // The form that had focus is gone after booking. Moving focus to the ticket
+  // heading keeps keyboard users in place and makes screen readers read it.
+  useEffect(() => {
+    headingRef.current?.focus()
+  }, [])
 
   const rows = [
     { label: t('receipt.temple'), value: localize(booking.templeName) },
@@ -27,7 +35,7 @@ export function ReceiptView({ booking, onBookAnother }: ReceiptProps) {
   return (
     <article className={styles.receipt} aria-labelledby="receipt-heading" data-print-area>
       <header className={styles.header}>
-        <h2 id="receipt-heading" className={styles.heading}>
+        <h2 id="receipt-heading" ref={headingRef} tabIndex={-1} className={styles.heading}>
           {t('receipt.heading')}
         </h2>
         <p className={styles.reference}>
