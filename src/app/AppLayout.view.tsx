@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
+import { NavLink } from 'react-router'
 import { useI18n } from '../common/localization/I18nContext'
+import { PATHS } from '../navigation/paths'
 import styles from './AppLayout.module.css'
 
 /** Kerala nilavilakku (brass oil lamp), drawn inline so it needs no image request. */
@@ -22,15 +24,26 @@ export function AppLayout({ children }: { children: ReactNode }) {
       <header className={styles.header}>
         <div className={styles.headerInner}>
           <LampIcon />
-          <div>
+          <div className={styles.brand}>
             <p className={styles.subtitle}>{t('app.subtitle')}</p>
             <p className={styles.title}>{t('app.title')}</p>
           </div>
+          <nav className={styles.nav} aria-label={t('nav.label')}>
+            <NavLink to={PATHS.booking} end className={styles.navLink}>
+              {t('nav.book')}
+            </NavLink>
+            <NavLink to={PATHS.myBookings} className={styles.navLink}>
+              {t('nav.myBookings')}
+            </NavLink>
+          </nav>
         </div>
       </header>
       <main id="main" className={styles.main} tabIndex={-1}>
         {children}
       </main>
+      <footer className={styles.footer}>
+        <p>{t('common.istNote')}</p>
+      </footer>
     </div>
   )
 }

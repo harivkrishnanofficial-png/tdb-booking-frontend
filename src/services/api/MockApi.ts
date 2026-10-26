@@ -1,8 +1,13 @@
 import { MAX_TICKETS_PER_BOOKING } from '../../common/constants/AppConstants'
-import type { Booking, BookingRequest } from '../../models/Booking.model'
+import type { Booking, BookingLookup, BookingRequest } from '../../models/Booking.model'
 import type { Slot, Temple } from '../../models/Temple.model'
 import { hasStarted } from '../../utils/DateTime'
-import { PHONE_PATTERN, devoteeSchema, getAgeCategory, normalizeIdNumber } from '../../utils/Validators'
+import {
+  bookingLookupSchema,
+  devoteeSchema,
+  getAgeCategory,
+  normalizeIdNumber,
+} from '../../utils/Validators'
 import {
   decrypt,
   encrypt,
@@ -241,12 +246,20 @@ function createBooking(request: BookingRequest, idempotencyKey: string): Promise
   return simulateNetwork(() => commitBooking(request, idempotencyKey))
 }
 
-/** A devotee's bookings, found by phone number, in start-time order. */
-function getBookings(phone: string, signal?: AbortSignal): Promise<Booking[]> {
+/**
+ * A devotee's bookings, in start-time order. Both the phone and the ID number
+ * must match, so knowing someone's phone number is not enough to see or cancel
+ * their bookings. Matching uses the keyed hashes: clear values are never compared.
+ */
+function getBookings(lookup: BookingLookup, signal?: AbortSignal): Promise<Booking[]> {
   return simulateNetwork(async () => {
-    if (!PHONE_PATTERN.test(phone)) throw new ApiError('INVALID_REQUEST')
-    const phoneHash = await hashForLookup(phone)
-    const matches = [...db.bookings.values()].filter((booking) => booking.phoneHash === phoneHash)
+    const parsed = bookingLookupSchema.safeParse(lookup)
+    if (!parsed.success) throw new ApiError('INVALID_REQUEST')
+    const phoneHash = await hashForLookup(parsed.data.phone)
+    const idHash = await hashForLookup(normalizeIdNumber(parsed.data.idNumber))
+    const matches = [...db.bookings.values()].filter(
+      (booking) => booking.phoneHash === phoneHash && booking.idHash === idHash,
+    )
     const bookings = await Promise.all(matches.map(toBooking))
     return bookings.sort((a, b) => a.startsAt.localeCompare(b.startsAt))
   }, signal)
