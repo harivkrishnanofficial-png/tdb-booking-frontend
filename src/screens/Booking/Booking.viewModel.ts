@@ -80,10 +80,16 @@ export function useBookingViewModel(): BookingViewModel {
     slotOptions?.find(({ slot, unavailableReason }) => slot.id === current.slotId && !unavailableReason)
       ?.slot ?? null
 
-  /** Pushes a history entry, so Back returns to the previous temple and day. */
+  /**
+   * Pushes a history entry, so Back returns to the previous temple and day.
+   * Empty values remove the parameter, so shared links stay clean.
+   */
   function updateFilters(changes: Record<string, string>) {
     const next = new URLSearchParams(searchParams)
-    Object.entries(changes).forEach(([name, value]) => next.set(name, value))
+    Object.entries(changes).forEach(([name, value]) => {
+      if (value) next.set(name, value)
+      else next.delete(name)
+    })
     setSearchParams(next)
   }
 
