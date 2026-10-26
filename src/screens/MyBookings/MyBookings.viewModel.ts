@@ -26,6 +26,8 @@ export function useMyBookingsViewModel(): MyBookingsViewModel {
   const [lookup, setLookup] = useState<BookingLookup | null>(null)
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
   const [cancelFailure, setCancelFailure] = useState<CancelFailure | null>(null)
+  // One ticket open at a time keeps the list short on a phone.
+  const [expandedId, setExpandedId] = useState<string | null>(null)
 
   const { register, handleSubmit, formState } = useForm<BookingLookup>({
     resolver: zodResolver(bookingLookupSchema),
@@ -80,6 +82,7 @@ export function useMyBookingsViewModel(): MyBookingsViewModel {
       canCancel: booking.status === 'confirmed' && !started && !cancelMutation.isPending,
       isConfirming: confirmingId === booking.id,
       isCancelling: cancelMutation.isPending && cancelMutation.variables === booking.id,
+      isExpanded: expandedId === booking.id,
     }
   }
 
@@ -88,6 +91,7 @@ export function useMyBookingsViewModel(): MyBookingsViewModel {
     errors: formState.errors,
     onLookup: handleSubmit((values) => {
       setCancelFailure(null)
+      setExpandedId(null)
       setLookup(values)
     }),
     bookingsState: getBookingsState(lookup, bookingsQuery.isError, bookingsQuery.data?.map(toCard)),
@@ -96,6 +100,7 @@ export function useMyBookingsViewModel(): MyBookingsViewModel {
     requestCancel: setConfirmingId,
     dismissCancel: () => setConfirmingId(null),
     confirmCancel: (bookingId) => cancelMutation.mutate(bookingId),
+    toggleReceipt: (bookingId) => setExpandedId((current) => (current === bookingId ? null : bookingId)),
   }
 }
 

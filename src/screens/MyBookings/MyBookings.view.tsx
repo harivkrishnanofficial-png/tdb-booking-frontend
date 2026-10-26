@@ -1,3 +1,4 @@
+import { ReceiptView } from '../../components/Receipt/Receipt.view'
 import { StatusMessage } from '../../components/StatusMessage/StatusMessage.view'
 import { apiErrorKey, isMessageKey, useI18n } from '../../common/localization/I18nContext'
 import type { BookingLookup } from '../../models/Booking.model'
@@ -53,8 +54,9 @@ function LookupForm({ viewModel }: { viewModel: MyBookingsViewModel }) {
 
 function BookingCardView({ card, viewModel }: { card: BookingCard; viewModel: MyBookingsViewModel }) {
   const { t, localize, formatDate, formatTime } = useI18n()
-  const { booking, hasStarted, canCancel, isConfirming, isCancelling } = card
+  const { booking, hasStarted, canCancel, isConfirming, isCancelling, isExpanded } = card
   const headingId = `booking-${booking.id}`
+  const receiptId = `${headingId}-receipt`
 
   return (
     <li>
@@ -65,13 +67,26 @@ function BookingCardView({ card, viewModel }: { card: BookingCard; viewModel: My
           </h2>
           <span className={styles.badge}>{t(`status.${booking.status}`)}</span>
         </header>
-        <p className={styles.when}>
-          {formatDate(booking.date, { dateStyle: 'full' })} · {formatTime(booking.startsAt)}
-        </p>
-        <p className={styles.meta}>
-          {t('myBookings.tickets', { count: booking.tickets })} ·{' '}
-          {t('myBookings.reference', { reference: booking.reference })}
-        </p>
+        {/* The whole card is the tap target for this button (see .details::after). */}
+        <button
+          type="button"
+          className={styles.details}
+          aria-expanded={isExpanded}
+          aria-controls={receiptId}
+          onClick={() => viewModel.toggleReceipt(booking.id)}
+        >
+          <span className={styles.when}>
+            {formatDate(booking.date, { dateStyle: 'full' })} · {formatTime(booking.startsAt)}
+          </span>
+          <span className={styles.meta}>
+            {t('myBookings.tickets', { count: booking.tickets })} ·{' '}
+            {t('myBookings.reference', { reference: booking.reference })}
+          </span>
+          <span className={styles.toggleHint}>
+            {t(isExpanded ? 'myBookings.hideTicket' : 'myBookings.viewTicket')}
+            <span aria-hidden="true">{isExpanded ? ' ▴' : ' ▾'}</span>
+          </span>
+        </button>
 
         {isCancelling && (
           <p className={styles.pending} role="status">
@@ -103,6 +118,11 @@ function BookingCardView({ card, viewModel }: { card: BookingCard; viewModel: My
           </div>
         )}
       </article>
+      {isExpanded && (
+        <div id={receiptId} className={styles.receipt}>
+          <ReceiptView booking={booking} />
+        </div>
+      )}
     </li>
   )
 }

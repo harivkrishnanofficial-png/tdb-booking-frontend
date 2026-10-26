@@ -198,3 +198,60 @@
   color: var(--color-on-primary);
   background: var(--color-danger);
 }
+
+/*
+ * Tap anywhere on the card to open its ticket: the details button's ::after
+ * stretches over the card. Cancel controls sit above it (z-index), so they
+ * keep their own clicks.
+ */
+.card {
+  position: relative;
+}
+
+.details {
+  display: grid;
+  gap: var(--space-1);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: none;
+  text-align: start;
+  cursor: pointer;
+}
+
+.details::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  content: '';
+}
+
+.details:focus-visible {
+  outline: none;
+}
+
+.card:has(.details:focus-visible) {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.card:hover {
+  border-color: var(--color-primary);
+}
+
+.toggleHint {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.card .secondary,
+.card .danger,
+.confirm {
+  position: relative;
+  z-index: 1;
+}
+
+.receipt {
+  margin-top: var(--space-2);
+}

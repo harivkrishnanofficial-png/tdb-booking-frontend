@@ -10,6 +10,8 @@ export interface BookingCard {
   canCancel: boolean
   isConfirming: boolean
   isCancelling: boolean
+  /** The ticket (receipt) is open below the card. */
+  isExpanded: boolean
 }
 
 /** "idle" means the devotee has not searched yet. */
@@ -39,4 +41,5 @@ export interface MyBookingsViewModel {
   requestCancel: (bookingId: string) => void
   dismissCancel: () => void
   confirmCancel: (bookingId: string) => void
+  toggleReceipt: (bookingId: string) => void
 }
